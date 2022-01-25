@@ -1,48 +1,156 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
+using System.Drawing;
+using System.Windows.Forms;
 
-namespace Simulator
+public class Class1 : System.Windows.Forms.Form
 {
-    class Class1
+    private Panel buttonPanel = new Panel();
+    private DataGridView songsDataGridView = new DataGridView();
+    private Button addNewRowButton = new Button();
+    private Button deleteRowButton = new Button();
+
+    public Class1()
     {
-        private static Mutex mutex = new Mutex();
-        public void Example()
+        this.Load += new EventHandler(Form1_Load);
+    }
+
+    private void Form1_Load(System.Object sender, System.EventArgs e)
+    {
+        SetupLayout();
+        SetupDataGridView();
+        PopulateDataGridView();
+    }
+
+    private void songsDataGridView_CellFormatting(object sender,
+        System.Windows.Forms.DataGridViewCellFormattingEventArgs e)
+    {
+        if (e != null)
         {
-            //Create mumber of thread to explain muiltiple thread example  
-            SharableSpreadsheet sp = new SharableSpreadsheet(50, 560);
-            for (int i = 0; i < 4; i++)
+            if (this.songsDataGridView.Columns[e.ColumnIndex].Name == "Release Date")
             {
-                Thread t = new Thread(() => sp.getCell(500, 4));
-                t.Name = string.Format("Thread {0} :", i + 1);
-                t.Start();
+                if (e.Value != null)
+                {
+                    try
+                    {
+                        e.Value = DateTime.Parse(e.Value.ToString())
+                            .ToLongDateString();
+                        e.FormattingApplied = true;
+                    }
+                    catch (FormatException)
+                    {
+                        Console.WriteLine("{0} is not a valid date.", e.Value.ToString());
+                    }
+                }
             }
         }
-       /* static void Main1(string[] args)
+    }
+
+    private void addNewRowButton_Click(object sender, EventArgs e)
+    {
+        this.songsDataGridView.Rows.Add();
+    }
+
+    private void deleteRowButton_Click(object sender, EventArgs e)
+    {
+        if (this.songsDataGridView.SelectedRows.Count > 0 &&
+            this.songsDataGridView.SelectedRows[0].Index !=
+            this.songsDataGridView.Rows.Count - 1)
         {
-            Class1 p = new Class1();
-            p.Example();
-        }*/
-        //Method to implement syncronization using Mutex  
-        static void MutexDemo(Object s, Object s1)
-        {
-            try
-            {
-                Console.WriteLine((String)s1);
-                //Blocks the current thread until the current WaitHandle receives a signal.   
-                mutex.WaitOne();   // Wait until it is safe to enter.  
-                Console.WriteLine("{0} has entered in the Domain", Thread.CurrentThread.Name);
-                Thread.Sleep((int)s);    // Wait until it is safe to enter.  
-                Console.WriteLine("{0} is leaving the Domain\r\n", Thread.CurrentThread.Name);
-            }
-            finally
-            {
-                //ReleaseMutex unblock other threads that are trying to gain ownership of the mutex.  
-                mutex.ReleaseMutex();
-            }
+            this.songsDataGridView.Rows.RemoveAt(
+                this.songsDataGridView.SelectedRows[0].Index);
         }
+    }
+
+    private void SetupLayout()
+    {
+        this.Size = new Size(600, 500);
+
+        addNewRowButton.Text = "Add Row";
+        addNewRowButton.Location = new Point(10, 10);
+        addNewRowButton.Click += new EventHandler(addNewRowButton_Click);
+
+        deleteRowButton.Text = "Delete Row";
+        deleteRowButton.Location = new Point(100, 10);
+        deleteRowButton.Click += new EventHandler(deleteRowButton_Click);
+
+        buttonPanel.Controls.Add(addNewRowButton);
+        buttonPanel.Controls.Add(deleteRowButton);
+        buttonPanel.Height = 50;
+        buttonPanel.Dock = DockStyle.Bottom;
+
+        this.Controls.Add(this.buttonPanel);
+    }
+
+    private void SetupDataGridView()
+    {
+        this.Controls.Add(songsDataGridView);
+
+        songsDataGridView.ColumnCount = 5;
+
+        songsDataGridView.ColumnHeadersDefaultCellStyle.BackColor = Color.Navy;
+        songsDataGridView.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
+        songsDataGridView.ColumnHeadersDefaultCellStyle.Font =
+            new Font(songsDataGridView.Font, FontStyle.Bold);
+
+        songsDataGridView.Name = "songsDataGridView";
+        songsDataGridView.Location = new Point(8, 8);
+        songsDataGridView.Size = new Size(500, 250);
+        songsDataGridView.AutoSizeRowsMode =
+            DataGridViewAutoSizeRowsMode.DisplayedCellsExceptHeaders;
+        songsDataGridView.ColumnHeadersBorderStyle =
+            DataGridViewHeaderBorderStyle.Single;
+        songsDataGridView.CellBorderStyle = DataGridViewCellBorderStyle.Single;
+        songsDataGridView.GridColor = Color.Black;
+        songsDataGridView.RowHeadersVisible = false;
+
+        songsDataGridView.Columns[0].Name = "Release Date";
+        songsDataGridView.Columns[1].Name = "Track";
+        songsDataGridView.Columns[2].Name = "Title";
+        songsDataGridView.Columns[3].Name = "Artist";
+        songsDataGridView.Columns[4].Name = "Album";
+        songsDataGridView.Columns[4].DefaultCellStyle.Font =
+            new Font(songsDataGridView.DefaultCellStyle.Font, FontStyle.Italic);
+
+        songsDataGridView.SelectionMode =
+            DataGridViewSelectionMode.FullRowSelect;
+        songsDataGridView.MultiSelect = false;
+        songsDataGridView.Dock = DockStyle.Fill;
+
+        songsDataGridView.CellFormatting += new
+            DataGridViewCellFormattingEventHandler(
+            songsDataGridView_CellFormatting);
+    }
+
+    private void PopulateDataGridView()
+    {
+
+        string[] row0 = { "11/22/1968", "29", "Revolution 9",
+            "Beatles", "The Beatles [White Album]" };
+        string[] row1 = { "1960", "6", "Fools Rush In",
+            "Frank Sinatra", "Nice 'N' Easy" };
+        string[] row2 = { "11/11/1971", "1", "One of These Days",
+            "Pink Floyd", "Meddle" };
+        string[] row3 = { "1988", "7", "Where Is My Mind?",
+            "Pixies", "Surfer Rosa" };
+        string[] row4 = { "5/1981", "9", "Can't Find My Mind",
+            "Cramps", "Psychedelic Jungle" };
+        string[] row5 = { "6/10/2003", "13",
+            "Scatterbrain. (As Dead As Leaves.)",
+            "Radiohead", "Hail to the Thief" };
+        string[] row6 = { "6/30/1992", "3", "Dress", "P J Harvey", "Dry" };
+
+        songsDataGridView.Rows.Add(row0);
+        songsDataGridView.Rows.Add(row1);
+        songsDataGridView.Rows.Add(row2);
+        songsDataGridView.Rows.Add(row3);
+        songsDataGridView.Rows.Add(row4);
+        songsDataGridView.Rows.Add(row5);
+        songsDataGridView.Rows.Add(row6);
+
+       /* songsDataGridView.Columns[0].DisplayIndex = 3;
+        songsDataGridView.Columns[1].DisplayIndex = 4;
+        songsDataGridView.Columns[2].DisplayIndex = 0;
+        songsDataGridView.Columns[3].DisplayIndex = 1;
+        songsDataGridView.Columns[4].DisplayIndex = 2;*/
     }
 }

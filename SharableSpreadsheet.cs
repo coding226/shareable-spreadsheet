@@ -8,6 +8,7 @@ namespace Simulator
     class SharableSpreadsheet
     {
         private string[,] a;
+        public String[] loadData;
 
         public string[,] getSheet()
         {
@@ -18,6 +19,11 @@ namespace Simulator
         {
             // construct a nRows*nCols spreadsheet
             this.a = new string[nRows, nCols];
+        }
+
+        public SharableSpreadsheet()
+        {
+            //default constructor
         }
 
         //*READ*
@@ -297,8 +303,8 @@ namespace Simulator
         }
         public bool setConcurrentSearchLimit(int nUsers)
         {
-            bool result = Program.UpdateConcurrentSearchThreadCount(nUsers);
-            return result;
+            
+            return true;
         }
         public bool save(String fileName)
         {
@@ -323,8 +329,21 @@ namespace Simulator
         }
         public bool load(String fileName)
         {
-            // load the spreadsheet from fileName
-            // replace the data and size of the current spreadsheet with the loaded data
+            loadData = File.ReadAllLines(fileName);
+            int rowCount = loadData.Length;
+            int colCount = loadData[0].Split(",").Length;
+            this.a = new string[rowCount, colCount];
+
+            for (int i = 0; i < rowCount; i++)
+            {
+                String[] cols = loadData[i].Split(",");
+                for(int j = 0; j < colCount; j++)
+                {
+                    this.a[i, j] = cols[j];
+                }
+            }
+
+
             return true;
         }
 
