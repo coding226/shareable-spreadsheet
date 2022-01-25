@@ -21,11 +21,6 @@ namespace Simulator
             this.a = new string[nRows, nCols];
         }
 
-        public SharableSpreadsheet()
-        {
-            //default constructor
-        }
-
         //*READ*
         public String getCell(int row, int col)
         {
@@ -303,8 +298,8 @@ namespace Simulator
         }
         public bool setConcurrentSearchLimit(int nUsers)
         {
-            
-            return true;
+            bool result = Program.UpdateConcurrentSearchThreadCount(nUsers);
+            return result;
         }
         public bool save(String fileName)
         {
@@ -337,7 +332,7 @@ namespace Simulator
             for (int i = 0; i < rowCount; i++)
             {
                 String[] cols = loadData[i].Split(",");
-                for(int j = 0; j < colCount; j++)
+                for (int j = 0; j < colCount; j++)
                 {
                     this.a[i, j] = cols[j];
                 }

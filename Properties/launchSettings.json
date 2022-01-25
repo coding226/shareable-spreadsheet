@@ -2,7 +2,7 @@
   "profiles": {
     "Simulator": {
       "commandName": "Project",
-      "commandLineArgs": "100 1000 50 100"
+      "commandLineArgs": "10 100 15 100"
     }
   }
 }
